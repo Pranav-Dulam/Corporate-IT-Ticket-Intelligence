@@ -1,0 +1,13 @@
+metric,value
+has_description,23421
+has_usable_resolution,333
+trainable_category,23421
+trainable_priority,353
+retrievable,327
+jira_project__classes,370
+mendeley_issue_type__classes,3
+priority_smallest_class,8
+description_p99_words,467
+duplicate_description_rows,52
+jira_project__label_in_text,8701
+mendeley_issue_type__label_in_text,63

@@ -42,3 +42,4 @@ data/interim/*
 !data/interim/.gitkeep
 !data/interim/*_cleaning_report.csv
 !data/processed/*_report.csv
+!data/processed/eda_*.csv
