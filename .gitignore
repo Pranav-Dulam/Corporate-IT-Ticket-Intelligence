@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Environment variables
+.env
+.env.*
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Node / frontend
+node_modules/
+frontend/dist/
+
+# Logs
+*.log
+
+# Local model artifacts
+models/*.pkl
+models/*.joblib
+
+# Raw/processed data
+data/raw/*
+data/processed/*
+
+# Keep directories in Git
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Intermediate data
+data/interim/*
+!data/interim/.gitkeep
+!data/interim/*_cleaning_report.csv
+!data/processed/*_report.csv

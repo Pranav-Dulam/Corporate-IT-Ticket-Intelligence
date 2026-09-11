@@ -1,0 +1,10 @@
+metric,value
+total_rows,114795
+rows_mendeley,66691
+rows_servicenow,24918
+rows_josse,23186
+with_description,23421
+with_usable_resolution,333
+trainable_category,23421
+trainable_priority,353
+retrievable_for_rag,327

@@ -1,0 +1,11 @@
+metric,value
+rows_before,66691
+rows_after,66691
+columns_before,58
+columns_after,62
+duplicates_removed,0
+semantic_missing_replaced,33965
+invalid_timestamps,0
+invalid_resolution_chronology_rows,0
+negative_workflow_rows,55
+negative_workflow_values_replaced,55

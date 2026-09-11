@@ -1,0 +1,14 @@
+metric,value
+event_rows_before,141712
+event_rows_after,141712
+columns_before,36
+event_columns_after,46
+unique_incidents_before,24918
+incident_snapshot_rows,24918
+duplicates_removed,0
+semantic_missing_replaced,894597
+invalid_timestamps,0
+invalid_incident_states,5
+invalid_event_chronology_rows,5
+invalid_resolution_chronology_rows,0
+invalid_closure_chronology_rows,0

@@ -1,0 +1,14 @@
+metric,value
+rows_before,23186
+rows_after,23186
+columns_before,7
+columns_after,16
+duplicates_removed,0
+semantic_missing_replaced,0
+empty_corpus_rows,0
+missing_reference_rows,1118
+unique_projects,371
+negative_expert_estimated_effort_replaced,18857
+negative_actual_effort_replaced,0
+negative_num_comment_replaced,0
+negative_num_activities_replaced,0
