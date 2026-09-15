@@ -4,10 +4,13 @@ import numpy as np
 import pandas as pd
 
 
-INPUT_PATH = Path("data/raw/servicenow_uci/incident_event_log.csv")
-EVENT_OUTPUT_PATH = Path("data/interim/servicenow_events_clean.csv")
-INCIDENT_OUTPUT_PATH = Path("data/interim/servicenow_incidents_clean.csv")
-REPORT_PATH = Path("data/interim/servicenow_cleaning_report.csv")
+# Anchor all paths to the project root so the script works from any cwd.
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+INPUT_PATH = PROJECT_ROOT / "data/raw/servicenow_uci/incident_event_log.csv"
+EVENT_OUTPUT_PATH = PROJECT_ROOT / "data/interim/servicenow_events_clean.csv"
+INCIDENT_OUTPUT_PATH = PROJECT_ROOT / "data/interim/servicenow_incidents_clean.csv"
+REPORT_PATH = PROJECT_ROOT / "data/interim/servicenow_cleaning_report.csv"
 
 
 SEMANTIC_MISSING = {"?", "", "unknown", "none", "null", "n/a", "na", "-"}

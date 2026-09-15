@@ -6,17 +6,14 @@ import numpy as np
 import pandas as pd
 
 
-INPUT_PATH = Path(
-    "data/raw/jira_josse/JOSSE_18092020.sqlite3"
-)
+# Anchor all paths to the project root so the script works from any cwd.
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-OUTPUT_PATH = Path(
-    "data/interim/josse_clean.csv"
-)
+INPUT_PATH = PROJECT_ROOT / "data/raw/jira_josse/JOSSE_18092020.sqlite3"
 
-REPORT_PATH = Path(
-    "data/interim/josse_cleaning_report.csv"
-)
+OUTPUT_PATH = PROJECT_ROOT / "data/interim/josse_clean.csv"
+
+REPORT_PATH = PROJECT_ROOT / "data/interim/josse_cleaning_report.csv"
 
 
 SEMANTIC_MISSING = {

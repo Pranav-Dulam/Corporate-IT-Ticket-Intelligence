@@ -27,10 +27,13 @@ import pandas as pd
 # Paths
 # ---------------------------------------------------------
 
-INPUT_PATH = Path("data/processed/unified_tickets.csv")
+# Anchor all paths to the project root so the script works from any cwd.
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-SUMMARY_PATH = Path("data/processed/eda_summary.csv")
-CATEGORY_PATH = Path("data/processed/eda_category_counts.csv")
+INPUT_PATH = PROJECT_ROOT / "data/processed/unified_tickets.csv"
+
+SUMMARY_PATH = PROJECT_ROOT / "data/processed/eda_summary.csv"
+CATEGORY_PATH = PROJECT_ROOT / "data/processed/eda_category_counts.csv"
 
 
 # Class-size thresholds to evaluate. A class with fewer examples

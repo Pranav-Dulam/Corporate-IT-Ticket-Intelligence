@@ -29,16 +29,17 @@ import pandas as pd
 # Paths
 # ---------------------------------------------------------
 
-MENDELEY_PATH = Path("data/interim/mendeley_clean.csv")
-SERVICENOW_PATH = Path("data/interim/servicenow_incidents_clean.csv")
-JOSSE_PATH = Path("data/interim/josse_clean.csv")
+# Anchor all paths to the project root so the script works from any cwd.
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-UTTERANCES_PATH = Path(
-    "data/raw/mendeley_helpdesk/sample_utterances.csv"
-)
+MENDELEY_PATH = PROJECT_ROOT / "data/interim/mendeley_clean.csv"
+SERVICENOW_PATH = PROJECT_ROOT / "data/interim/servicenow_incidents_clean.csv"
+JOSSE_PATH = PROJECT_ROOT / "data/interim/josse_clean.csv"
 
-OUTPUT_PATH = Path("data/processed/unified_tickets.csv")
-REPORT_PATH = Path("data/processed/unified_tickets_report.csv")
+UTTERANCES_PATH = PROJECT_ROOT / "data/raw/mendeley_helpdesk/sample_utterances.csv"
+
+OUTPUT_PATH = PROJECT_ROOT / "data/processed/unified_tickets.csv"
+REPORT_PATH = PROJECT_ROOT / "data/processed/unified_tickets_report.csv"
 
 
 UNIFIED_COLUMNS = [

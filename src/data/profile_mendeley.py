@@ -1,8 +1,11 @@
 import pandas as pd
 from pathlib import Path
 
-INPUT_PATH = Path("data/raw/mendeley_helpdesk/issues.csv")
-OUTPUT_PATH = Path("data/processed/mendeley_data_quality.csv")
+# Anchor all paths to the project root so the script works from any cwd.
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+INPUT_PATH = PROJECT_ROOT / "data/raw/mendeley_helpdesk/issues.csv"
+OUTPUT_PATH = PROJECT_ROOT / "data/processed/mendeley_data_quality.csv"
 
 SEMANTIC_MISSING = {
     "unknown",
