@@ -1,0 +1,2 @@
+variant,rows,classes,accuracy_mean,accuracy_std,f1_macro_mean,f1_macro_std,precision_macro_mean,precision_macro_std,recall_macro_mean,recall_macro_std,baseline_f1_macro,permutation_pvalue
+linearsvc_binary,353,2,0.6568289738430585,0.05409869987197712,0.6491065269842412,0.055179549203109954,0.654992404206771,0.05653229068042574,0.6493007759784076,0.054154406185131496,0.35346801346801343,0.009900990099009901

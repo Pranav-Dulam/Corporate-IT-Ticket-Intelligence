@@ -44,3 +44,5 @@ data/interim/*
 !data/processed/*_report.csv
 !data/processed/eda_*.csv
 !data/processed/category_*.csv
+!data/processed/priority_*.csv
+!data/processed/priority_*.csv
