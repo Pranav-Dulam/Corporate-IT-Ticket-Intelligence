@@ -20,8 +20,8 @@ Unified schema:
     source          which dataset the row came from
 """
 
+import re
 from pathlib import Path
-
 import pandas as pd
 
 
@@ -161,13 +161,25 @@ def enrich_mendeley_with_utterances(mendeley):
     def join_role(role):
         subset = utterances[utterances["author_role"] == role]
 
+        def combine(series):
+            # Collapse whitespace WITHIN each utterance, then join with
+            # a newline so turn boundaries survive. Phase 8 depends on
+            # them: boilerplate is one whole utterance ("your ticket has
+            # been assigned"), and a space-join fuses the entire thread
+            # into one unsplittable string that matches nothing.
+            parts = [
+                re.sub(r"\s+", " ", str(value)).strip()
+                for value in series.dropna()
+            ]
+            return "\n".join(part for part in parts if part)
+
         joined = (
             subset
             .groupby("issueid")["actionbody"]
-            .apply(lambda s: " ".join(s.dropna().astype(str)))
+            .apply(combine)
         )
 
-        return collapse_whitespace(joined)
+        return joined.replace("", pd.NA).astype("string")
 
     descriptions = join_role("reporter")
     resolutions = join_role("assignee")

@@ -46,3 +46,8 @@ data/interim/*
 !data/processed/category_*.csv
 !data/processed/priority_*.csv
 !data/processed/priority_*.csv
+!data/processed/priority_*.csv
+!data/processed/resolution_quality.csv
+!data/processed/retrieval_evaluation.csv
+models/embeddings/*
+!models/embeddings/.gitkeep
