@@ -43,3 +43,4 @@ data/interim/*
 !data/interim/*_cleaning_report.csv
 !data/processed/*_report.csv
 !data/processed/eda_*.csv
+!data/processed/category_*.csv

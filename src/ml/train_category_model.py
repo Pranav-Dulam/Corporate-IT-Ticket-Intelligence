@@ -28,7 +28,9 @@ import numpy as np
 import pandas as pd
 
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.calibration import CalibratedClassifierCV
 from sklearn.linear_model import LogisticRegression
+from sklearn.svm import LinearSVC
 from sklearn.metrics import (
     accuracy_score,
     classification_report,
@@ -138,7 +140,7 @@ def strip_project_names(series, pattern):
 # Data preparation
 # ---------------------------------------------------------
 
-def load_dataset(strip_names):
+def load_dataset(strip_names, min_class_size=MIN_CLASS_SIZE):
 
     section("1. LOADING DATA")
 
@@ -179,13 +181,13 @@ def load_dataset(strip_names):
 
     # --- drop rare classes -------------------------------
     counts = df["category"].value_counts()
-    keep = counts[counts >= MIN_CLASS_SIZE].index
+    keep = counts[counts >= min_class_size].index
 
     before = len(df)
     df = df[df["category"].isin(keep)].copy()
 
     print(
-        f"Classes with >= {MIN_CLASS_SIZE} examples: {len(keep):,} "
+        f"Classes with >= {min_class_size} examples: {len(keep):,} "
         f"(dropped {before - len(df):,} rows)"
     )
 
@@ -199,7 +201,43 @@ def load_dataset(strip_names):
 # Model
 # ---------------------------------------------------------
 
-def build_pipeline():
+def build_classifier(model_name):
+    """
+    LinearSVC is the stronger baseline on sparse TF-IDF text, but it
+    has no predict_proba - it returns signed distances from the
+    hyperplane rather than probabilities. The CLI needs a confidence
+    figure, so it is wrapped in CalibratedClassifierCV, which fits
+    Platt scaling on internal cross-validation folds.
+
+    That wrapper trains the SVM cv times instead of once. LinearSVC is
+    fast enough on sparse text that this is still quicker than the
+    logistic regression it replaces.
+    """
+
+    if model_name == "logreg":
+        return LogisticRegression(
+            max_iter=1000,
+            class_weight="balanced",
+            random_state=RANDOM_SEED,
+            n_jobs=-1,
+        )
+
+    if model_name == "linearsvc":
+        return CalibratedClassifierCV(
+            LinearSVC(
+                C=1.0,
+                class_weight="balanced",
+                random_state=RANDOM_SEED,
+                max_iter=5000,
+            ),
+            cv=3,
+            method="sigmoid",
+        )
+
+    raise ValueError(f"Unknown model: {model_name}")
+
+
+def build_pipeline(model_name):
     """
     TF-IDF and the classifier live in one Pipeline.
 
@@ -222,15 +260,7 @@ def build_pipeline():
                     sublinear_tf=True,
                 ),
             ),
-            (
-                "clf",
-                LogisticRegression(
-                    max_iter=1000,
-                    class_weight="balanced",
-                    random_state=RANDOM_SEED,
-                    n_jobs=-1,
-                ),
-            ),
+            ("clf", build_classifier(model_name)),
         ]
     )
 
@@ -288,15 +318,30 @@ def main():
         help="Remove project-name tokens before vectorizing.",
     )
 
+    parser.add_argument(
+        "--model",
+        choices=["linearsvc", "logreg"],
+        default="linearsvc",
+        help="Classifier to train (default: linearsvc).",
+    )
+
+    parser.add_argument(
+        "--min-class-size",
+        type=int,
+        default=MIN_CLASS_SIZE,
+        help="Drop classes with fewer examples than this.",
+    )
+
     args = parser.parse_args()
 
     variant = "stripped" if args.strip_project_names else "raw"
+    tag = f"{args.model}_{variant}_min{args.min_class_size}"
 
     print(SEPARATOR)
-    print(f"PHASE 6 - CATEGORY CLASSIFICATION  [{variant}]")
+    print(f"PHASE 6 - CATEGORY CLASSIFICATION  [{tag}]")
     print(SEPARATOR)
 
-    df = load_dataset(args.strip_project_names)
+    df = load_dataset(args.strip_project_names, args.min_class_size)
 
     # -----------------------------------------------------
     section("2. TRAIN / TEST SPLIT")
@@ -319,7 +364,7 @@ def main():
     # -----------------------------------------------------
     section("3. TRAINING")
 
-    pipeline = build_pipeline()
+    pipeline = build_pipeline(args.model)
 
     print("\nFitting TF-IDF + Logistic Regression...")
     print("(a few minutes with this many classes)")
@@ -367,25 +412,25 @@ def main():
 
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
 
-    model_path = MODEL_DIR / f"category_model_{variant}.joblib"
+    model_path = MODEL_DIR / f"category_model_{tag}.joblib"
 
     joblib.dump(pipeline, model_path)
 
     # The whole Pipeline is saved, vectorizer included, so inference
     # never needs to rebuild or refit anything.
 
-    metrics_path = REPORT_DIR / f"category_metrics_{variant}.csv"
+    metrics_path = REPORT_DIR / f"category_metrics_{tag}.csv"
 
-    pd.DataFrame([{"variant": variant, **metrics}]).to_csv(
+    pd.DataFrame([{"variant": tag, **metrics}]).to_csv(
         metrics_path, index=False
     )
 
-    per_class_path = REPORT_DIR / f"category_per_class_{variant}.csv"
+    per_class_path = REPORT_DIR / f"category_per_class_{tag}.csv"
     per_class.to_csv(per_class_path)
 
     cm = confusion_matrix(y_test, y_pred, labels=labels)
 
-    cm_path = REPORT_DIR / f"category_confusion_{variant}.csv"
+    cm_path = REPORT_DIR / f"category_confusion_{tag}.csv"
 
     pd.DataFrame(cm, index=labels, columns=labels).to_csv(cm_path)
 
