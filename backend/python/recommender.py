@@ -167,9 +167,16 @@ def build_warnings(hits, prediction, steps):
 
 class Recommender:
 
-    def __init__(self, backend="embedding"):
+    def __init__(self, backend="embedding", retriever=None):
         self.predictor = Predictor()
-        self.retriever = TicketRetriever(backend=backend).build()
+
+        # An already-built retriever can be injected so the CLI loads
+        # a saved index instead of re-encoding 317 tickets per run.
+        self.retriever = (
+            retriever
+            if retriever is not None
+            else TicketRetriever(backend=backend).build()
+        )
 
     def recommend(self, description, k=DEFAULT_TOP_K):
 

@@ -32,11 +32,17 @@ PRIORITY_MODELS = [
     "priority_model_linearsvc_binary.joblib",
 ]
 
-# Below this, the prediction is reported as uncertain rather than
-# stated. The category model was trained on Apache Jira projects, so
-# a helpdesk ticket is out of its domain and SHOULD score low - this
-# is the calibration from Phase 6 doing its job.
-CONFIDENCE_FLOOR = 0.35
+# Below this, a prediction is reported as uncertain rather than
+# stated. The floor is PER MODEL because chance level differs: with
+# 138 categories chance is ~0.007, with 2 priorities it is 0.50. A
+# single shared floor of 0.35 could never fire for the binary model,
+# so a coin-flip 54% was being presented as a confident answer.
+CONFIDENCE_FLOORS = {
+    "category": 0.35,
+    "priority": 0.65,
+}
+
+DEFAULT_CONFIDENCE_FLOOR = 0.35
 
 
 def _first_existing(filenames):
@@ -112,7 +118,9 @@ class Predictor:
                 "confidence": confidence,
                 "uncertain": (
                     confidence is not None
-                    and confidence < CONFIDENCE_FLOOR
+                    and confidence < CONFIDENCE_FLOORS.get(
+                        label, DEFAULT_CONFIDENCE_FLOOR
+                    )
                 ),
                 "error": None,
             }

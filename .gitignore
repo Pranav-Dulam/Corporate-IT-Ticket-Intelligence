@@ -51,3 +51,6 @@ data/interim/*
 !data/processed/retrieval_evaluation.csv
 models/embeddings/*
 !models/embeddings/.gitkeep
+
+# The template is committed; only the real .env is secret
+!.env.example

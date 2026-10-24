@@ -143,8 +143,10 @@ def call_gemini(prompt, api_key):
 
 class Advisor:
 
-    def __init__(self, backend="embedding"):
-        self.recommender = Recommender(backend=backend)
+    def __init__(self, backend="embedding", retriever=None):
+        self.recommender = Recommender(
+            backend=backend, retriever=retriever
+        )
 
     def advise(self, description, k=5, use_llm=True):
 

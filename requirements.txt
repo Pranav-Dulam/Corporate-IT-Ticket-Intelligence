@@ -6,18 +6,12 @@ numpy>=1.26,<3.0
 scikit-learn>=1.5,<2.0
 joblib>=1.4,<2.0
 
-# Data acquisition
-requests>=2.32,<3.0
+# Semantic retrieval (Phase 8)
+sentence-transformers>=3.0
 
-# Configuration / secrets (Phase 9 onward)
+# LLM layer (Phase 9) - Google Gemini free tier
+google-genai>=1.0
 python-dotenv>=1.0,<2.0
 
 # Testing (Phase 11)
 pytest>=8.0,<9.0
-
-# Notebooks (optional, for exploratory analysis in Phase 5)
-jupyterlab>=4.2,<5.0
-
-# --- Added later, when the phase actually needs them ---
-# Phase 8 (semantic retrieval): sentence-transformers  -> pulls in torch (~2 GB)
-# Phase 9 (LLM layer):          openai  OR  anthropic
