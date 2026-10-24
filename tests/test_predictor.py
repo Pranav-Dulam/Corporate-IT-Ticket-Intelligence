@@ -23,7 +23,11 @@ def test_corrupted_model_degrades_without_raising(monkeypatch, tmp_path):
 
     monkeypatch.setattr(predictor, "MODEL_DIR", tmp_path)
 
-    result = predictor.Predictor().predict("vpn keeps dropping")
+    # include_category=True: the model is off by default now, so the
+    # corrupted-file path has to be asked for explicitly.
+    result = predictor.Predictor(include_category=True).predict(
+        "vpn keeps dropping"
+    )
 
     assert result["category"]["label"] is None
     assert any("failed to load" in e for e in result["model_errors"])

@@ -14,6 +14,7 @@ automatically when the underlying data changes.
 import argparse
 import csv
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -78,7 +79,14 @@ def load_retriever(rebuild=False):
         return retriever
 
     retriever = TicketRetriever.load(backend="embedding")
-    print(f"Loaded index: {len(retriever.corpus)} tickets.\n")
+    print(f"Loaded index: {len(retriever.corpus)} tickets.")
+
+    # Load the sentence encoder now rather than on the first query.
+    # On-call, startup latency is expected and query latency is not.
+    started = time.perf_counter()
+    retriever.search("warmup", k=1)
+    print(f"Encoder ready in {time.perf_counter() - started:.1f}s.\n")
+
     return retriever
 
 
@@ -156,18 +164,20 @@ def display(result, verbose=False):
 
     hits = result["similar"]
 
-    print(f"\n  {len(hits)} similar incident(s) found.")
+    strong = [h for h in hits if not h.get("weak")]
 
-    if not hits and len(result["description"].split()) < 10:
+    print(f"\n  {len(hits)} incident(s) retrieved "
+          f"({len(strong)} strong):\n")
+
+    for hit in hits[:5]:
+        marker = "  weak" if hit.get("weak") else "strong"
+        snippet = " ".join(str(hit["description"]).split())[:96]
+        print(f"    [{marker}] {hit['similarity']:.0%}  {snippet}...")
+
+    if not strong and len(result["description"].split()) < 10:
         print("\n  Your description is brief. Retrieval works better "
               "with\n  specifics - the error message, the application, "
               "what you\n  already tried.")
-
-    if hits:
-        top = hits[0]
-        snippet = " ".join(str(top["description"]).split())[:150]
-        print(f"\n  Most similar  (similarity {top['similarity']:.0%}):")
-        print(f"    {snippet}...")
 
     if result["steps"]:
         print(f"\n{THIN}")
@@ -269,9 +279,13 @@ def analyse(advisor, text, verbose, use_llm, feedback=True):
 
     print("\n  Analysing ticket...")
 
+    started = time.perf_counter()
     result = advisor.advise(cleaned, use_llm=use_llm)
+    elapsed = time.perf_counter() - started
 
     display(result, verbose=verbose)
+
+    print(f"  [answered in {elapsed:.2f}s]\n")
 
     if feedback:
         ask_feedback(cleaned, result)

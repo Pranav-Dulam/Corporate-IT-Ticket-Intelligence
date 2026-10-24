@@ -224,11 +224,13 @@ class TicketRetriever:
         # Below the floor nothing meaningful matched. Returning
         # an empty list is the weak-evidence signal Phase 9 needs:
         # a 0.38 cosine must not be presented as a 38% match.
-        floor = (
-            SIMILARITY_FLOOR
-            if min_similarity is None
-            else min_similarity
-        )
+        # On-call use: retrieval shows everything ranked and marks
+        # weak matches instead of hiding them. An engineer discards an
+        # irrelevant hit in two seconds; a suppressed relevant one
+        # costs the whole incident. The floor still gates GENERATION
+        # (see advisor.py), where confident prose from thin evidence
+        # is the 3am failure mode.
+        floor = 0.0 if min_similarity is None else min_similarity
 
         top = np.argsort(scores)[::-1][:k]
 
@@ -249,6 +251,7 @@ class TicketRetriever:
                     "rank": rank,
                     "corpus_index": int(index),
                     "similarity": float(scores[index]),
+                    "weak": bool(scores[index] < SIMILARITY_FLOOR),
                     **{
                         column: row[column]
                         for column in PAYLOAD_COLUMNS

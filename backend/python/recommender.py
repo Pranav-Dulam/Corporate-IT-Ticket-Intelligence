@@ -128,28 +128,32 @@ def build_warnings(hits, prediction, steps):
 
     warnings = []
 
+    strong = [h for h in hits if not h.get("weak")]
+
     if not hits:
+        warnings.append("No historical incidents retrieved.")
+    elif not strong:
         warnings.append(
-            "No historical incident scored above the "
-            f"{SIMILARITY_FLOOR} similarity threshold. No grounded "
-            "recommendation is available."
+            f"All {len(hits)} match(es) are weak (below "
+            f"{SIMILARITY_FLOOR}). Shown as leads for review, not as "
+            "precedents."
         )
-    elif len(hits) < 3:
+    elif len(strong) < 3:
         warnings.append(
-            f"Only {len(hits)} similar incident(s) found. The "
-            "recommendation rests on thin evidence."
+            f"Only {len(strong)} strong match(es). The recommendation "
+            "rests on thin evidence."
         )
 
-    if hits and hits[0]["similarity"] < SIMILARITY_FLOOR + 0.10:
+    if strong and strong[0]["similarity"] < SIMILARITY_FLOOR + 0.10:
         warnings.append(
             "The closest match is only marginally above the "
             "similarity threshold."
         )
 
-    if hits and not steps:
+    if strong and not steps:
         warnings.append(
-            "Similar incidents were found, but none of their "
-            "resolutions contained actionable steps."
+            "Strong matches were found, but none of their resolutions "
+            "contained actionable steps."
         )
 
     for field in ("category", "priority"):
@@ -191,7 +195,10 @@ class Recommender:
 
         prediction = self.predictor.predict(description)
         hits = self.retriever.search(description, k=k)
-        steps = extract_steps(hits)
+        # Weak matches are shown as leads for an engineer to judge,
+        # but their text must never be presented as a recommendation -
+        # a 30% match produced bank-account advice for a VPN question.
+        steps = extract_steps([h for h in hits if not h.get("weak")])
 
         return {
             "description": description,

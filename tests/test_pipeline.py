@@ -12,28 +12,47 @@ def test_known_issue_retrieves_incidents(advisor):
     assert result["similar"][0]["similarity"] >= 0.45
 
 
-def test_unrelated_ticket_returns_nothing(advisor):
+def test_unrelated_ticket_returns_only_weak_leads(advisor):
     """
-    No VPN tickets exist in this corpus. The system must say so rather
-    than return the nearest unrelated incident.
+    No VPN tickets exist here. Retrieval still returns ranked leads -
+    on-call, a suppressed relevant hit costs more than a dismissed
+    irrelevant one - but every hit must be marked weak and none may
+    become recommendation material.
     """
     result = advisor.advise(
         "VPN disconnects every few minutes after windows update",
         use_llm=False,
     )
-    assert result["similar"] == []
-    assert any("threshold" in w for w in result["warnings"])
+    assert result["similar"]
+    assert all(hit["weak"] for hit in result["similar"])
+    assert any("weak" in w for w in result["warnings"])
 
 
-def test_every_hit_clears_the_floor(advisor):
+def test_steps_never_come_from_weak_matches(advisor):
+    """
+    A 30% match once produced bank-account-closure advice for a VPN
+    question, printed under a RECOMMENDED RESOLUTION heading. Weak
+    hits are leads for a human to judge, never recommendation input.
+    """
+    result = advisor.advise(
+        "VPN disconnects every few minutes after windows update",
+        use_llm=False,
+    )
+    assert result["steps"] == []
+
+
+def test_weak_flag_matches_floor(advisor):
+    """The flag is the contract Phase 12's API will expose."""
     from retriever import SIMILARITY_FLOOR
 
     result = advisor.advise(
         "cannot open the application link in the browser",
         use_llm=False,
     )
+    assert result["similar"]
+
     for hit in result["similar"]:
-        assert hit["similarity"] >= SIMILARITY_FLOOR
+        assert hit["weak"] == (hit["similarity"] < SIMILARITY_FLOOR)
 
 
 def test_llm_skipped_when_no_evidence(advisor, monkeypatch):
@@ -45,7 +64,7 @@ def test_llm_skipped_when_no_evidence(advisor, monkeypatch):
         use_llm=True,
     )
     assert result["source"] == "retrieval"
-    assert any("no grounding evidence" in w for w in result["warnings"])
+    assert any("strong enough" in w for w in result["warnings"])
 
 
 def test_missing_api_key_falls_back(advisor):

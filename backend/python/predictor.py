@@ -55,7 +55,14 @@ def _first_existing(filenames):
 
 class Predictor:
 
-    def __init__(self):
+    def __init__(self, include_category=False):
+        # The category model is 178 MB and predicts Apache project
+        # names, meaningless for helpdesk text - the CLI has always
+        # hidden its output. Loading it cost seconds of startup for a
+        # field nobody sees, and startup is felt when the user is
+        # on-call. Off by default; the training script and its metrics
+        # stay in the repo as documented work.
+        self.include_category = include_category
         self._category = None
         self._priority = None
         self._loaded = False
@@ -71,10 +78,12 @@ class Predictor:
         if self._loaded:
             return self
 
-        for attr, candidates, label in [
-            ("_category", CATEGORY_MODELS, "category"),
-            ("_priority", PRIORITY_MODELS, "priority"),
-        ]:
+        targets = [("_priority", PRIORITY_MODELS, "priority")]
+
+        if self.include_category:
+            targets.insert(0, ("_category", CATEGORY_MODELS, "category"))
+
+        for attr, candidates, label in targets:
             path = _first_existing(candidates)
 
             if path is None:

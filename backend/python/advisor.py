@@ -64,7 +64,9 @@ def build_evidence(result):
 
     blocks = []
 
-    for i, hit in enumerate(result["similar"][:MAX_EVIDENCE], 1):
+    strong = [h for h in result["similar"] if not h.get("weak")]
+
+    for i, hit in enumerate(strong[:MAX_EVIDENCE], 1):
 
         resolution = str(hit.get("resolution") or "")[:MAX_RESOLUTION_CHARS]
         description = str(hit.get("description") or "")[:600]
@@ -156,9 +158,12 @@ class Advisor:
             return result
 
         # Structural grounding guard: no evidence, no generation.
-        if not result["similar"]:
+        strong = [h for h in result["similar"] if not h.get("weak")]
+
+        if not strong:
             result["warnings"].append(
-                "LLM generation skipped: no grounding evidence."
+                "LLM generation skipped: no match strong enough to "
+                "ground a recommendation."
             )
             return result
 

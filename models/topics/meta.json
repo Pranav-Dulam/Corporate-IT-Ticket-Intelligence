@@ -1,0 +1,48 @@
+{
+  "k": 5,
+  "silhouette": 0.06456461548805237,
+  "assignment_floor": 0.38171461820602415,
+  "labels": {
+    "0": [
+      "mobile",
+      "number",
+      "ph_code",
+      "default",
+      "account",
+      "set"
+    ],
+    "1": [
+      "delete",
+      "kindly",
+      "dears",
+      "thank",
+      "users",
+      "note"
+    ],
+    "2": [
+      "transaction",
+      "bank",
+      "ph_technical",
+      "ph_item",
+      "transactions",
+      "pay"
+    ],
+    "3": [
+      "greetings",
+      "production",
+      "thanks",
+      "ph_user",
+      "time",
+      "today"
+    ],
+    "4": [
+      "\u0639\u0644\u0649",
+      "\u0645\u0646",
+      "\u064a\u0631\u062c\u0649",
+      "\u062a\u0645",
+      "\u0627\u0633\u0645",
+      "\u0627\u0644\u062a\u064a"
+    ]
+  },
+  "n_tickets": 317
+}
